@@ -1,6 +1,7 @@
 pragma solidity ^0.4.17;
 
 import "https://github.com/MzansiRe/iMali/blob/master/Controlled.sol";
+import "https://github.com/MzansiRe/iMali/blob/master/MiniMeToken.sol";
 
 /**
  * @title MiniMeTokenFactory
