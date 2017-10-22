@@ -1,5 +1,7 @@
 pragma solidity ^0.4.17;
 
+import "https://github.com/MzansiRe/iMali/blob/master/Controlled.sol";
+
 /**
  * @title MiniMeTokenFactory
  * @dev used to create clone tokens
