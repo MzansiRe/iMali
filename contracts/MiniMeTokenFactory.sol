@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 
-import "https://github.com/MzansiRe/iMali/blob/master/Controlled.sol";
-import "https://github.com/MzansiRe/iMali/blob/master/MiniMeToken.sol";
+import "./Controlled.sol";
+import "./MiniMeToken.sol";
 
 /**
  * @title MiniMeTokenFactory
@@ -9,8 +9,8 @@ import "https://github.com/MzansiRe/iMali/blob/master/MiniMeToken.sol";
  */
 contract MiniMeTokenFactory is Controlled {
 
-    address public _address;
-
+    address public _address = address(this);
+    
     /* clone creation method */
     function createCloneToken(
         address _parentToken,
@@ -30,9 +30,9 @@ contract MiniMeTokenFactory is Controlled {
             _transfersEnabled
             );
         
-        _address = address(this);
         newToken.transferControl(msg.sender);
         return newToken;
     }
+    
     
 }

@@ -1,10 +1,17 @@
 pragma solidity ^0.4.17;
 
-import "https://github.com/MzansiRe/iMali/blob/master/SafeMath.sol";
-import "https://github.com/MzansiRe/iMali/blob/master/Controlled.sol";
-import "https://github.com/MzansiRe/iMali/blob/master/ApproveAndCallFallBack.sol";
-import "https://github.com/MzansiRe/iMali/blob/master/MiniMeTokenFactory.sol";
-import "https://github.com/MzansiRe/iMali/blob/master/TokenController.sol";
+import "./SafeMath.sol";
+import "./Controlled.sol";
+import "./MiniMeTokenFactory.sol";
+import "./TokenController.sol";
+
+/**
+ * @title ApproveAndCallFallBack
+ * @dev Used to ping receiver of approval
+ */
+contract ApproveAndCallFallBack { 
+  function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; 
+}
 
 /**
  * @title MiniMeToken
