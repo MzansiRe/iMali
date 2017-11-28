@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 /**
  * @title Controlled
@@ -16,7 +16,8 @@ contract Controlled {
     _;
   }
 
-  function transferControl(address newController) onlyController public {
+  function transferControl(address newController) public onlyController{
     controller = newController;
   }
 } 
+

@@ -1,14 +1,19 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 /**
  * @title SafeMath
  * @dev Math operations that are safe for uint256 against overflow and negative values
  * @dev https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/math/SafeMath.sol
  */
+
+
 library SafeMath {
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
     uint256 c = a * b;
-    assert(a == 0 || c / a == b);
+    assert(c / a == b);
     return c;
   }
 
@@ -20,9 +25,7 @@ library SafeMath {
   }
 
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-    if(b > a) {
-    revert();
-    }
+    assert(b <= a);
     return a - b;
   }
 
@@ -32,4 +35,3 @@ library SafeMath {
     return c;
   }
 }
-

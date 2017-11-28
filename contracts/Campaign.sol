@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 import "./MiniMeToken.sol";
 import "./Controlled.sol";
@@ -9,16 +9,11 @@ import "./RefundVault.sol";
 contract Campaign is TokenController, Controlled {
     using SafeMath for uint256;
 
-    uint256 public startFundingTime = 1512086400; // Dec 1, 2017 @ 00h00 UTC
-    uint256 public endFundingTime = 1519862340; // Feb 28, 2018 @ 23h59 UTC
+    uint256 public startFundingTime = 1512259200; // Dec 3, 2017 @ 00h00 UTC
+    uint256 public endFundingTime = 1520035140; // Mar 2, 2018 @ 23h59 UTC
     
-    uint256 public maximumFunding = 26500 ether; 
-    /* note: maximum number of iMali in circulation after presale will range between
-      [10600000, 13250000]; assuming maximumFunding cap is reached */  
-    
-    uint256 public minimumGoal = 5000 ether;
-    /* note: maximum number of iMali in circulation after presale will range between
-      [2000000, 2500000]; assuming only minimumGoal cap is reached*/
+    uint256 public minimumGoal = 2000 ether;
+    uint256 public maximumFunding = 10000 ether;  
     
     /*The entry threshold is set to 0.01 ETH which is equivalent to 10 Finney*/
     uint256 public purchaseThreshold = 10 finney;
@@ -32,10 +27,12 @@ contract Campaign is TokenController, Controlled {
     uint256 public constant campaignDuration = 90; // 1 Dec 2017 to 28 Feb 2018
     uint256 public constant degreesOfPrecision = 10**5; // precision used to compute floating values
     uint256 public constant maximumBonus = 25; // the maximum bonus for early purchasers equals 25%
-    uint256 public constant iMaliPerEther = 400; // 1 ETH buys 400 IML excluding bonuses
+    uint256 public constant iMaliPerEther = 500; // 1 ETH buys 500 IML excluding bonuses
     
     bool public isFinalized = false;
     event Finalized();
+    
+    address public bountyWallet;
     
     // helper function returns the current day of campaign when supplied with block.timestamp t
     function theDay(uint256 t) internal view returns (uint256) {
@@ -48,35 +45,6 @@ contract Campaign is TokenController, Controlled {
     
 /*     
 Bonus begins at 25% from 1 Dec 2017 and decreases to 0% on the 28 Feb 2018 in linear stepwise manner
-
-25% |___
-    |   \___
-    |       \___
-    |           \___
-    |               \___
-    |                   \___
-    |                       \___
-    |                           \___
-    |                               \___
-    |                                   \___
-    |                                       \___
-    |                                           \___
-    |                                               \___
-    |                                                   \___
-    |                                                       \___
-    |                                                           \___
-    |                                                               \___
-    |                                                                   \___
-    |                                                                       \___
-    |                                                                           \___
-    |                                                                               \___
-    |                                                                                   \___    
-    |                                                                                       \___
-    |                                                                                           \___
- 0% |_______________________________________________________________________________________________\_  
-    |                                                                                                |
- 01/12/2017                                                                                     28/02/2018 
-
 */
     // function that calculates the bonus for purchase of token at time t
     function theFloatMultiplier (uint256 t) public view returns (uint256, uint256, uint256) {
@@ -113,15 +81,17 @@ Bonus begins at 25% from 1 Dec 2017 and decreases to 0% on the 28 Feb 2018 in li
     
     
   
-        function Campaign(address _walletAddress, address _tokenAddress) {
+        function Campaign(address _walletAddress, address _tokenAddress, address _bountyWalletAdress) {
         
         require ((_endFundingTime >= now) &&           // Cannot end in the past
             (_endFundingTime > _startFundingTime) &&
-            (_walletAddress != address(0x0)));          // To prevent burning ETH
+            (_walletAddress != address(0x0)) &&
+            (_bountyWalletAdressAddress != address(0x0)));     
             
         tokenContract = MiniMeToken(_tokenAddress);    // The Deployed Token Contract
         wallet = _walletAddress;
         vault = new RefundVault(wallet);
+        bountyWallet = _bountyWalletAdress;
     }
 
 /// @dev The fallback function is called when ether is sent to the contract, it
@@ -205,25 +175,6 @@ Bonus begins at 25% from 1 Dec 2017 and decreases to 0% on the 28 Feb 2018 in li
 
         return;
     }
-/*
-/// @notice `finalizeFunding()` ends the Campaign by calling setting the
-///  controller to 0, thereby ending the issuance of new tokens and stopping the
-///  Campaign from receiving more ether
-/// @dev `finalizeFunding()` can only be called after the end of the funding period.
-
-    function finalizeFunding() {
-        require(now >= endFundingTime);
-        tokenContract.transferControl(0x0);
-    }*/ 
-
-/*
-/// @notice `onlyOwner` changes the location that ether is sent
-/// @param _newVaultAddress The address that will receive the ether sent to this
-///  Campaign
-    function setWallet(address _newVaultAddress) onlyController {
-        vault = _newVaultAddress;
-    }*/
-    
 
 function forwardFunds() internal {
     vault.deposit.value(msg.value)(msg.sender);
@@ -251,15 +202,26 @@ function forwardFunds() internal {
   function finalization() internal {
     if (goalReached()) {
       vault.close();
+      createBountyTokens();
+      createReserveTokens();
     } else {
       vault.enableRefunds();
     }
     
     tokenContract.transferControl(0x0);
-    
-    //super.finalization();
+
+  }
+ 
+  function createBountyTokens() internal {
+    uint256 bountyAllocation = 1250000*10**18;
+    require (tokenContract.generateTokens(bountyWallet, bountyAllocation));
   }
 
+  function createReserveTokens() internal {
+    uint256 reserveAllocation = 2500000*10**18;
+    require (tokenContract.generateTokens(wallet, reserveAllocation));
+  }
+  
   function goalReached() public constant returns (bool) {
     return totalCollected >= minimumGoal;
   }

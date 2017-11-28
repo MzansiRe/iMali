@@ -1,7 +1,6 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 import "./MiniMeToken.sol";
-import "./MiniMeTokenFactory.sol";
 
 /**
  * @title iMaliToken
@@ -15,9 +14,9 @@ contract iMaliToken is MiniMeToken {
     public MiniMeToken(_tokenFactory, // factory address
                         address(0x0), // no parent token
                         0,            // no parent token snapshot block
-                        "iMali3",      // the glorious token name
+                        "iMali",      // the glorious token name
                         18,           // eighteen decimals 
-                        "IML3",        // token symbol
+                        "IMALI",      // token symbol
                         true)         // transfers enabled 
     {
         // setting the version 
